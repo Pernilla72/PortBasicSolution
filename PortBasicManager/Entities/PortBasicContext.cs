@@ -10,6 +10,11 @@ namespace PortBasicManager.Entities
         public virtual DbSet<Port> Ports { get; set; }
 
         public virtual DbSet<Vessel> Vessels { get; set; }
+
+        public virtual DbSet<RejectedVessel> RejectedVessels { get; set; }
+
+
+
         public PortBasicContext() : base()
         {
             var builder = new ConfigurationBuilder();
@@ -42,7 +47,8 @@ namespace PortBasicManager.Entities
                 entity.Property(e => e.SlotId).ValueGeneratedNever();
                 entity.Property(e => e.Id).ValueGeneratedOnAdd();
                 entity.Property(e => e.Occupancy).HasColumnType("decimal(18, 2)");
-                entity.Property(e => e.VesselId).HasMaxLength(12);
+                entity.Property(e => e.VesselIdA).HasMaxLength(12);  // Kolumn för första båtens ID
+                entity.Property(e => e.VesselIdB).HasMaxLength(12);  // Kolumn för andra båtens ID (vid delad plats)
             });
 
             modelBuilder.Entity<Vessel>(entity =>

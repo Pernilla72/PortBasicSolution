@@ -18,6 +18,9 @@ namespace PortBasicManager
 
         public int? FreeSlots { get; set; }
 
+        public string? VesselIdA { get; set; }  // Första båtens ID
+        public string? VesselIdB { get; set; }  // Andra båtens ID
+
         public ICollection<Vessel> Vessel { get; set; }  // Navigation property to Vessels
     }
 }
