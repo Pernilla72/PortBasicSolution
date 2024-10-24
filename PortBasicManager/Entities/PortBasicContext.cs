@@ -1,17 +1,32 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 
 namespace PortBasicManager.Entities
 {
     public partial class PortBasicContext : DbContext    //Bytt namn på databasen för att senare köra en Migration
     {
-        public PortBasicContext(DbContextOptions<PortBasicContext> options)
-            : base(options)
-        {
-        }
+        string connectionString = string.Empty;
         public virtual DbSet<Port> Ports { get; set; }
 
         public virtual DbSet<Vessel> Vessels { get; set; }
+        public PortBasicContext() : base()
+        {
+            var builder = new ConfigurationBuilder();
+            builder.AddJsonFile("appsettings.json", false);
+            var app = builder.Build();
+            connectionString = app.GetConnectionString("DefaultConnection");
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer(connectionString);
+        }
+
+        public PortBasicContext(DbContextOptions<PortBasicContext> options)
+        : base(options)
+        {
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -53,8 +68,25 @@ namespace PortBasicManager.Entities
                     .HasValue<SailBoat>("Sailboat");
             });
 
-            OnModelCreatingPartial(modelBuilder);
+            modelBuilder.Entity<RejectedVessel>(entity =>
+            {
+                entity.HasKey(e => e.Id).HasName("PK_RejectedVessel");
+                entity.ToTable("RejectedVessels");
+                entity.Property(e => e.VesselId).HasMaxLength(12).IsRequired();
+            });
+
+            // Seeding of port slots
+            for (int i = 1; i <= 64; i++)
+            {
+                modelBuilder.Entity<Port>().HasData(new Port
+                {
+                    SlotId = i,
+                    Id = i,  
+                    Occupancy = 0,  // Start with all slots being free
+                    VesselId = null,
+                    FreeSlots = null
+                });
+            }
         }
-        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }

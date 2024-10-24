@@ -14,7 +14,7 @@ namespace PortBasicManager
 
         public decimal? Occupancy { get; set; }
 
-        public string VesselId { get; set; } = null!;
+        public string? VesselId { get; set; }
 
         public int? FreeSlots { get; set; }
 

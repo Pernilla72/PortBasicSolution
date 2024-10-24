@@ -16,11 +16,6 @@ namespace PortBasicManager
             {
                 Console.WriteLine(vessel.ToString());
             }
-
-
-
-
-
         }
     }
 }

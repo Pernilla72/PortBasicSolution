@@ -13,6 +13,12 @@ namespace PortBasicManager.DailyFunctions
         private static Random random = new Random();
         private readonly PortBasicContext _context;
 
+        public DailyArrivals(PortBasicContext context = null) // Injektionsberoende
+        {
+            _context = context;
+        }
+
+
         #region Create vessles
         private RowBoat CreateRowboat()
         {
@@ -73,11 +79,11 @@ namespace PortBasicManager.DailyFunctions
                 if (vessel != null)
                 {
                     DailyVessels.Add(vessel);  // Lägg till båten i listan
-                    //_context.Vessels.Add(vessel);  // Lägg till båten i databasen
+                    _context.Vessels.Add(vessel);  // Lägg till båten i databasen
                 }
             }
 
-            //_context.SaveChanges();  // Spara alla nya båtar till databasen
+            _context.SaveChanges();  // Spara alla nya båtar till databasen
 
             return DailyVessels;
         }
