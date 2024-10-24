@@ -66,6 +66,14 @@ namespace PortBasicManager.Entities
                 entity.Property(e => e.VesselSize).HasColumnType("float");
                 entity.Property(e => e.LayTime).HasColumnType("int");
 
+                // Lägger till främmande nyckel för PortSlotId
+                modelBuilder.Entity<Vessel>()
+                    .HasOne<Port>(v => v.Port)  // Varje Vessel har en Port
+                    .WithMany(p => p.Vessel)    // Varje Port kan ha många Vessels
+                    .HasForeignKey(v => v.PortSlotId)  // Länka PortSlotId från Vessels till SlotId i Ports
+                    .HasConstraintName("FK_Vessels_Ports_PortSlotId");
+
+
                 // TPH-konfiguration för specifika fartyg
                 entity.HasDiscriminator<string>("VesselType")
                     .HasValue<CargoShip>("CargoShip")
