@@ -43,11 +43,10 @@ namespace PortBasicManager
             return rejectedVessels;
         }
 
-
         // Metod för att uppdatera databasen när en båt har befunnits möjlig att docka
         private void UpdateDatabaseWithDockedVessel(Vessel vessel)
         {
-            double requiredSlots = Math.Ceiling(vessel.VesselSize);
+            double requiredSlots = Math.Ceiling(vessel.VesselSize); // Motorboat should have 1 slot
 
             for (int i = 0; i < TotalSlots; i++)
             {
@@ -55,19 +54,38 @@ namespace PortBasicManager
 
                 if (berth != null)
                 {
-                    berth.Occupancy += (decimal)vessel.VesselSize;
-
-                    if (berth.Occupancy >= 1)
+                    // Kontrollera storleken på båten
+                    if (vessel.VesselSize == 1)
                     {
-                        berth.VesselId = vessel.VesselId;
+                        berth.Occupancy = 1; // Sätt full upptagen för Motorboat
+                        berth.VesselIdA = vessel.VesselId;  // Använd A-platsen
+                        context.SaveChanges();
+                        Console.WriteLine($"Motorboat docked in SlotId {berth.SlotId} with VesselId {vessel.VesselId}");
+                        return; // Avsluta efter att ha dockat båten
                     }
-                    context.SaveChanges();
-                    break;
+
+                    // Hantera större båtar, t.ex. CargoShip som tar fler platser
+                    if (requiredSlots > 1)
+                    {
+                        // Se till att ta rätt antal platser
+                        for (int j = i; j < i + requiredSlots; j++)
+                        {
+                            var berthToUpdate = context.Ports.FirstOrDefault(b => b.SlotId == j);
+                            if (berthToUpdate != null)
+                            {
+                                berthToUpdate.Occupancy = 1; // Markera plats som helt upptagen
+                                berthToUpdate.VesselIdA = vessel.VesselId;  // Använd plats A
+                            }
+                        }
+                        context.SaveChanges();
+                        Console.WriteLine($"Vessel {vessel.VesselType} docked from SlotId {i} to {i + requiredSlots - 1} with VesselId {vessel.VesselId}");
+                        return;
+                    }
                 }
             }
         }
 
-        //Metod för att kolla efter tillräckligt med sammanhängande lediga platser för den båt som ankommer till hamnen
+        // Metod för att kolla efter tillräckligt med sammanhängande lediga platser för den båt som ankommer till hamnen
         private bool TryDockVessel(Vessel vessel)
         {
             double requiredSlots = Math.Ceiling(vessel.VesselSize);
@@ -92,15 +110,44 @@ namespace PortBasicManager
 
                     if (availableSlots >= requiredSlots)  // Om vi har tillräckligt med sammanhängande platser
                     {
-                        return true;  // Båten kan docka
+                        // Uppdatera platserna i hamnen
+                        for (int k = i; k < i + requiredSlots; k++)
+                        {
+                            var berthToUpdate = context.Ports.FirstOrDefault(b => b.SlotId == k);
+
+                            if (berthToUpdate != null)
+                            {
+                                // Om det är en roddbåt och platsen redan har en roddbåt, fyll i VesselIdB
+                                if (vessel.VesselSize == 0.5 && berthToUpdate.Occupancy == 0.5m && berthToUpdate.VesselIdA != null && berthToUpdate.VesselIdB == null)
+                                {
+                                    berthToUpdate.Occupancy = 1.0m;  // Platsen är nu full
+                                    berthToUpdate.VesselIdB = vessel.VesselId;  // Tilldela andra roddbåtens ID till VesselIdB
+                                }
+                                else
+                                {
+                                    // Annars tilldela första roddbåten eller en större båt
+                                    berthToUpdate.Occupancy += (decimal)vessel.VesselSize;
+
+                                    if (berthToUpdate.VesselIdA == null)
+                                    {
+                                        berthToUpdate.VesselIdA = vessel.VesselId;  // Tilldela båtens ID till VesselIdA om det är ledigt
+                                    }
+                                }
+                            }
+                        }
+
+                        // Spara ändringar i databasen
+                        context.SaveChanges();
+
+                        // Skriv ut ett meddelande till konsolen när en båt har dockats
+                        Console.WriteLine($"Vessel {vessel.VesselType} docked in SlotId {i} to {i + requiredSlots - 1} with VesselId {vessel.VesselId}");
+
+                        return true;  // Dockning lyckades
                     }
                 }
             }
-
             return false;  // Det fanns inga tillräckligt stora sammanhängande lediga platser
         }
-
-
     }
 }
 

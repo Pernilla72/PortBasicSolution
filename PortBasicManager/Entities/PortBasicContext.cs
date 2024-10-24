@@ -89,7 +89,6 @@ namespace PortBasicManager.Entities
                     SlotId = i,
                     Id = i,  
                     Occupancy = 0,  // Start with all slots being free
-                    VesselId = null,
                     FreeSlots = null
                 });
             }
