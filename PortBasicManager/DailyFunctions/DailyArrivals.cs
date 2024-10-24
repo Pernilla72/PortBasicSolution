@@ -13,6 +13,11 @@ namespace PortBasicManager.DailyFunctions
         private static Random random = new Random();
         private readonly PortBasicContext _context;
 
+        public DailyArrivals(PortBasicContext context)
+        {
+            _context = context ?? throw new ArgumentNullException(nameof(context)); // Kontrollera att context inte är null
+        }
+
         #region Create vessles
         private RowBoat CreateRowboat()
         {
@@ -73,12 +78,9 @@ namespace PortBasicManager.DailyFunctions
                 if (vessel != null)
                 {
                     DailyVessels.Add(vessel);  // Lägg till båten i listan
-                    //_context.Vessels.Add(vessel);  // Lägg till båten i databasen
+                    
                 }
             }
-
-            //_context.SaveChanges();  // Spara alla nya båtar till databasen
-
             return DailyVessels;
         }
 
@@ -106,8 +108,7 @@ namespace PortBasicManager.DailyFunctions
 
         public void DisplayArrivals()   //för att testa om min Create daily vessels fungerade.
         {
-            DailyArrivals arrivals = new DailyArrivals();
-            List<Vessel> vessels = arrivals.GenerateDailyArrivals(5);   //Antlaet båtar som är valt att genereras just nu.
+            List<Vessel> vessels = GenerateDailyArrivals(5);   //Antlaet båtar som är valt att genereras just nu.
 
             // Iterera över listan och skriv ut detaljer för varje båt
             foreach (var vessel in vessels)
