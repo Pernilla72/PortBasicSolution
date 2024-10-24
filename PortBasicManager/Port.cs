@@ -14,8 +14,6 @@ namespace PortBasicManager
 
         public decimal? Occupancy { get; set; }
 
-        public string? VesselId { get; set; }
-
         public int? FreeSlots { get; set; }
 
         public string? VesselIdA { get; set; }  // Första båtens ID
