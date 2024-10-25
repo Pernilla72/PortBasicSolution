@@ -19,6 +19,7 @@ namespace PortBasicManager
 
         public int? LayTime { get; set; }
 
+        public int? PortSlotId { get; set; }  // Nyckel för att hålla reda på vilken kajplats båten ligger vid
         public Port Port { get; set; }  // Navigation property to Port
 
         public abstract void GenerateVesselId();

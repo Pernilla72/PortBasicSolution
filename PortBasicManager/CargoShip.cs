@@ -11,7 +11,7 @@ namespace PortBasicManager
         public int NumberOfContainers { get; set; }  // Unique feature
         public CargoShip()
         {
-            VesselType = "Cargoship";
+            VesselType = "CargoShip";
             VesselSize = 4;
             LayTime = 6;
             SpeedInKnots = 0;
